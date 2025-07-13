@@ -1,0 +1,2090 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Glog.AI",
+          "organization": "Glog.AI",
+          "fullName": "Glog, Making software more secure",
+          "version": "1.0.0",
+          "semanticVersion": "1.0.0",
+          "informationUri": "https://www.glog.ai",
+          "rules": [
+            {
+              "id": "glog-7f7a5eeb-0f3c-4a89-bcdf-61f23aa372b3",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection and Security Concern Identified\" in Python arises when user input is directly passed to shell commands without proper validation or sanitization. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the host system. The use of `os.system(cmd)` is particularly risky if `cmd` includes unsanitized user input.\n\n### General Mitigation Advice\n\n1. **Avoid Using `os.system`**: Prefer using higher-level libraries like `subprocess` which provide better control over shell execution.\n2. **Input Validation**: Always validate and sanitize user inputs to ensure they conform to expected formats.\n3. **Use Parameterized Functions**: When possible, use functions that allow parameterized inputs to avoid shell interpretation.\n4. **Least Privilege**: Run your application with the least privileges necessary to limit the impact of a potential compromise.\n\n### Source Code Fix Recommendation\n\nReplace `os.system(cmd)` with `subprocess.run()` or `subprocess.call()` using a list of arguments to avoid shell interpretation.\n\n#### Vulnerable Code\n\n```python\nimport os\n\ndef execute_command(user_input):\n    cmd = f\"echo {user_input}\"\n    os.system(cmd)\n```\n\n#### Fixed Code\n\n```python\nimport subprocess\n\ndef execute_command(user_input):\n    # Use a list to pass the command and arguments\n    cmd = [\"echo\", user_input]\n    subprocess.run(cmd, check=True)\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library:\n\n- `subprocess`: This is part of the Python Standard Library and does not require additional installation.\n\n### Relevant Links\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            },
+            {
+              "id": "glog-aa9d819a-2a8a-4e5a-923f-e7c444d715b3",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Security Concern: Use of subprocess call with shell=True Detected\" in Python arises when the `subprocess` module is used with the `shell=True` argument. This can lead to command injection vulnerabilities, where an attacker can execute arbitrary commands on the host system. This is particularly dangerous if user input is incorporated into the command string, as it can allow an attacker to execute malicious commands.\n\n### General Mitigation Advice\n\nTo mitigate this vulnerability, avoid using `shell=True` with the `subprocess` module. Instead, pass the command and its arguments as a list. This approach does not invoke the shell and is therefore not susceptible to shell injection attacks.\n\n### Source Code Fix Recommendation\n\nHere is a fixed version of the code that avoids using `shell=True`:\n\n```python\nimport subprocess\n\n# Original code\n# wmic_output = subprocess.check_output(wmic_cmd, shell=True)\n\n# Fixed code\nwmic_cmd = ['wmic', 'process', 'list', 'brief']\nwmic_output = subprocess.check_output(wmic_cmd)\n```\n\n### Library Dependencies\n\nThe code example requires the following library to execute properly:\n\n- `subprocess` (This is a standard library in Python and does not require separate installation.)\n\n### Relevant Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B602"
+                ]
+              }
+            },
+            {
+              "id": "glog-c659414b-18f2-43f1-8c4d-f86a1f49ae10",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Security Concern: Detected Subprocess Call with shell=True\" in Python arises when the `subprocess.Popen` function is used with the `shell=True` argument. This can lead to security risks such as shell injection, where an attacker can execute arbitrary commands on the host system. This is particularly dangerous if user input is passed to the subprocess call, as it can be exploited to execute malicious commands.\n\n### General Mitigation Advice\n\n1. **Avoid `shell=True`:** Use `shell=False` and pass the command and arguments as a list to avoid shell injection vulnerabilities.\n2. **Sanitize Inputs:** If user input must be used, ensure it is properly sanitized and validated.\n3. **Use `shlex.split`:** When dealing with complex command strings, use `shlex.split` to safely parse the command into a list.\n4. **Use High-Level Libraries:** Consider using higher-level libraries that abstract away the need to use subprocess directly, such as `os.system` or `shutil`.\n\n### Source Code Fix Recommendation\n\n```python\nimport subprocess\n\n# Original vulnerable code\n# cpu_array = subprocess.Popen(\"some_command\", shell=True)\n\n# Recommended secure code\ncpu_array = subprocess.Popen([\"some_command\"], shell=False)\n```\n\n### Library Dependencies\n\nThe code example requires the following library to execute properly:\n\n- `subprocess`: This is a standard library in Python and does not require additional installation.\n\n### Relevant OWASP Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B602"
+                ]
+              }
+            },
+            {
+              "id": "glog-c15d7827-c6b7-429a-812d-bcca064153d1",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. This can lead to various security issues, such as unauthorized access, data corruption, or privilege escalation. In Python, using hardcoded paths like `/tmp/stable_diffusion/` for temporary files or directories can be risky because `/tmp` is a shared space and can be exploited by malicious users.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's built-in libraries like `tempfile` to create temporary files and directories securely.\n2. **Set Appropriate Permissions**: Ensure that temporary files and directories have the least privilege necessary.\n3. **Avoid Predictable Names**: Use random or unique names for temporary files and directories to prevent guessing attacks.\n\n### Source Code Fix Recommendation\n\nReplace the hardcoded temporary directory path with a secure method using Python's `tempfile` module:\n\n```python\nimport tempfile\nimport os\n\n# Create a secure temporary directory\nwith tempfile.TemporaryDirectory() as tmpdirname:\n    # Use the temporary directory\n    print('Temporary directory created:', tmpdirname)\n    # Your code logic here\n    # Example: type=str, default=tmpdirname\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following standard library is required:\n\n- `tempfile`: This is a standard library in Python, so no additional installation is necessary.\n\n### OWASP Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-377: Insecure Temporary File](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-1804b139-e7d6-4bcb-9043-7d7e1a78280f",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. This can lead to various security issues, such as unauthorized access, data corruption, or privilege escalation. In Python, using hardcoded paths like `/tmp/stable_diffusion/` for temporary files or directories can be risky because `/tmp` is a shared space and can be exploited by malicious users.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's built-in libraries like `tempfile` to create temporary files and directories securely.\n2. **Set Appropriate Permissions**: Ensure that temporary files and directories have the least privilege necessary.\n3. **Avoid Predictable Names**: Use random or unique names for temporary files and directories to prevent guessing attacks.\n\n### Source Code Fix Recommendation\n\nReplace the hardcoded temporary directory path with a secure method using Python's `tempfile` module:\n\n```python\nimport tempfile\nimport os\n\n# Create a secure temporary directory\nwith tempfile.TemporaryDirectory() as tmpdirname:\n    # Use the temporary directory\n    print('Temporary directory created:', tmpdirname)\n    # Your code logic here\n    # Example: type=str, default=tmpdirname\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following standard library is required:\n\n- `tempfile`: This is a standard library in Python, so no additional installation is necessary.\n\n### OWASP Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-377: Insecure Temporary File](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-8e80268c-62bf-4286-b670-7378bbff69f8",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection Detected, Security Concern\" in Python arises when user input is passed directly to shell commands without proper validation or sanitization. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the host system. The use of `os.system()` with unsanitized input is a common vulnerability sink for this issue.\n\n### Mitigation Advice\n\nTo mitigate this vulnerability, avoid using `os.system()` with user input. Instead, use the `subprocess` module, which provides more secure ways to execute shell commands. Specifically, use `subprocess.run()` with a list of arguments to avoid shell interpretation of the command string.\n\n### Source Code Fix Recommendation\n\nReplace the use of `os.system()` with `subprocess.run()` as shown in the example below:\n\n```python\nimport subprocess\n\n# Original vulnerable code\n# os.system(multi_instance_command)\n\n# Secure code using subprocess\ndef execute_command(command):\n    try:\n        # Split the command into a list of arguments\n        command_list = command.split()\n        # Use subprocess.run() for safer execution\n        result = subprocess.run(command_list, check=True, capture_output=True, text=True)\n        print(result.stdout)\n    except subprocess.CalledProcessError as e:\n        print(f\"An error occurred: {e}\")\n\n# Example usage\nmulti_instance_command = \"echo Hello, World!\"\nexecute_command(multi_instance_command)\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library dependency:\n\n- `subprocess`: This is a standard library module in Python and does not require additional installation.\n\n### Relevant Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            },
+            {
+              "id": "glog-a6688d62-a426-435b-b01f-b6848eda541a",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. This can lead to various security issues, such as unauthorized access, data corruption, or privilege escalation. In Python, using hardcoded paths like `/tmp/stable_diffusion/` for temporary files or directories can be risky because `/tmp` is a shared space and can be exploited by malicious users.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's built-in libraries like `tempfile` to create temporary files and directories securely.\n2. **Set Appropriate Permissions**: Ensure that temporary files and directories have the least privilege necessary.\n3. **Avoid Predictable Names**: Use random or unique names for temporary files and directories to prevent guessing attacks.\n\n### Source Code Fix Recommendation\n\nReplace the hardcoded temporary directory path with a secure method using Python's `tempfile` module:\n\n```python\nimport tempfile\nimport os\n\n# Create a secure temporary directory\nwith tempfile.TemporaryDirectory() as tmpdirname:\n    # Use the temporary directory\n    print('Temporary directory created:', tmpdirname)\n    # Your code logic here\n    # Example: type=str, default=tmpdirname\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following standard library is required:\n\n- `tempfile`: This is a standard library in Python, so no additional installation is necessary.\n\n### OWASP Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-377: Insecure Temporary File](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-359b8e6e-8baf-4281-a2b9-1b285f350b15",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection and Security Concern Identified\" in Python arises when user input is passed directly to shell commands without proper validation or sanitization. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the host system. The specific vulnerability sink in this case is the use of `os.system(evaluate_cmd)`, which executes the command string in a subshell. If `evaluate_cmd` contains unsanitized user input, it can be exploited to execute unintended commands.\n\n### General Mitigation Advice\n\n1. **Avoid Using `os.system`:** Prefer using higher-level libraries like `subprocess` that provide better control over command execution.\n2. **Input Validation and Sanitization:** Always validate and sanitize user inputs to ensure they do not contain malicious content.\n3. **Use Parameterized Functions:** When possible, use functions that allow passing arguments as a list to avoid shell interpretation.\n4. **Least Privilege Principle:** Run your application with the least privileges necessary to limit the impact of a potential attack.\n\n### Source Code Fix Recommendation\n\nReplace `os.system(evaluate_cmd)` with `subprocess.run` using a list of arguments to avoid shell interpretation:\n\n```python\nimport subprocess\n\n# Example of a safe way to execute a command\ndef execute_command(command, args):\n    try:\n        # Use a list to pass the command and arguments\n        result = subprocess.run([command] + args, check=True, text=True, capture_output=True)\n        print(result.stdout)\n    except subprocess.CalledProcessError as e:\n        print(f\"An error occurred: {e}\")\n\n# Example usage\ncommand = \"ls\"\nargs = [\"-l\", \"/some/directory\"]\nexecute_command(command, args)\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library:\n\n- `subprocess`: This is a standard library in Python and does not require additional installation.\n\n### Relevant Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            },
+            {
+              "id": "glog-61733684-9baf-47be-968b-2abd56e5c15a",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection and Security Concern Identified\" in Python arises when user input is passed directly to shell commands without proper validation or sanitization. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the host system. The specific vulnerability sink in this case is the use of `os.system(evaluate_cmd)`, which executes the command string in a subshell. If `evaluate_cmd` contains unsanitized user input, it can be exploited to execute unintended commands.\n\n### General Mitigation Advice\n\n1. **Avoid Using `os.system`:** Prefer using higher-level libraries like `subprocess` that provide better control over command execution.\n2. **Input Validation and Sanitization:** Always validate and sanitize user inputs to ensure they do not contain malicious content.\n3. **Use Parameterized Functions:** When possible, use functions that allow passing arguments as a list to avoid shell interpretation.\n4. **Least Privilege Principle:** Run your application with the least privileges necessary to limit the impact of a potential attack.\n\n### Source Code Fix Recommendation\n\nReplace `os.system(evaluate_cmd)` with `subprocess.run` using a list of arguments to avoid shell interpretation:\n\n```python\nimport subprocess\n\n# Example of a safe way to execute a command\ndef execute_command(command, args):\n    try:\n        # Use a list to pass the command and arguments\n        result = subprocess.run([command] + args, check=True, text=True, capture_output=True)\n        print(result.stdout)\n    except subprocess.CalledProcessError as e:\n        print(f\"An error occurred: {e}\")\n\n# Example usage\ncommand = \"ls\"\nargs = [\"-l\", \"/some/directory\"]\nexecute_command(command, args)\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library:\n\n- `subprocess`: This is a standard library in Python and does not require additional installation.\n\n### Relevant Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            },
+            {
+              "id": "glog-38a94df4-4fd7-4933-90f2-c62797a42f6c",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. In Python, this often involves using predictable file paths or names in shared directories like `/tmp`, which can be exploited by an attacker to perform unauthorized actions, such as overwriting files or executing arbitrary code. This vulnerability is particularly concerning in multi-user environments where an attacker can anticipate the file names and create symbolic links or other malicious files.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File Functions**: Utilize Python's `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Avoid Predictable File Names**: Do not use predictable names for temporary files. Instead, let the system generate a unique name.\n3. **Set Appropriate Permissions**: Ensure that temporary files and directories have the least privilege necessary.\n4. **Clean Up**: Always remove temporary files and directories after they are no longer needed.\n\n### Source Code Fix Recommendation\n\nFor the specific vulnerability sink `default='/tmp/tf_examples.tfrecord'`, replace it with a secure method using the `tempfile` module:\n\n```python\nimport tempfile\n\n# Create a secure temporary file\nwith tempfile.NamedTemporaryFile(delete=False, suffix='.tfrecord') as temp_file:\n    temp_file_path = temp_file.name\n\n# Use temp_file_path as needed\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following library is required:\n\n- `tempfile` (This is a standard library in Python, so no additional installation is necessary.)\n\n### Relevant OWASP Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-377: Insecure Temporary File](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-8435e211-117f-40d2-82df-bdf2e9f8d786",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. In Python, this often involves using predictable file paths or names in shared directories like `/tmp`, which can be exploited by an attacker to perform unauthorized actions, such as overwriting files or executing arbitrary code. This vulnerability is particularly concerning in multi-user environments where an attacker can anticipate the file names and create symbolic links or other malicious files.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File Functions**: Utilize Python's `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Avoid Predictable File Names**: Do not use predictable names for temporary files. Instead, let the system generate a unique name.\n3. **Set Appropriate Permissions**: Ensure that temporary files and directories have the least privilege necessary.\n4. **Clean Up**: Always remove temporary files and directories after they are no longer needed.\n\n### Source Code Fix Recommendation\n\nFor the specific vulnerability sink `default='/tmp/tf_examples.tfrecord'`, replace it with a secure method using the `tempfile` module:\n\n```python\nimport tempfile\n\n# Create a secure temporary file\nwith tempfile.NamedTemporaryFile(delete=False, suffix='.tfrecord') as temp_file:\n    temp_file_path = temp_file.name\n\n# Use temp_file_path as needed\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following library is required:\n\n- `tempfile` (This is a standard library in Python, so no additional installation is necessary.)\n\n### Relevant OWASP Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-377: Insecure Temporary File](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-7475552e-4107-4d88-b2c0-a1b4e5bffc39",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection and Security Concern Identified\" in Python arises when user input is passed directly to shell commands without proper validation or sanitization. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the host system. The specific vulnerability sink in this case is the use of `os.system(evaluate_cmd)`, which executes the command string in a subshell. If `evaluate_cmd` contains unsanitized user input, it can be exploited to execute unintended commands.\n\n### General Mitigation Advice\n\n1. **Avoid Using `os.system`:** Prefer using higher-level libraries like `subprocess` that provide better control over command execution.\n2. **Input Validation and Sanitization:** Always validate and sanitize user inputs to ensure they do not contain malicious content.\n3. **Use Parameterized Functions:** When possible, use functions that allow passing arguments as a list to avoid shell interpretation.\n4. **Least Privilege Principle:** Run your application with the least privileges necessary to limit the impact of a potential attack.\n\n### Source Code Fix Recommendation\n\nReplace `os.system(evaluate_cmd)` with `subprocess.run` using a list of arguments to avoid shell interpretation:\n\n```python\nimport subprocess\n\n# Example of a safe way to execute a command\ndef execute_command(command, args):\n    try:\n        # Use a list to pass the command and arguments\n        result = subprocess.run([command] + args, check=True, text=True, capture_output=True)\n        print(result.stdout)\n    except subprocess.CalledProcessError as e:\n        print(f\"An error occurred: {e}\")\n\n# Example usage\ncommand = \"ls\"\nargs = [\"-l\", \"/some/directory\"]\nexecute_command(command, args)\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library:\n\n- `subprocess`: This is a standard library in Python and does not require additional installation.\n\n### Relevant Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            },
+            {
+              "id": "glog-9a0831cf-78fc-4c92-9225-3bd9c8d489be",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection and Security Concern Identified\" in Python arises when user input is passed directly to shell commands without proper validation or sanitization. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the host system. The specific vulnerability sink in this case is the use of `os.system(evaluate_cmd)`, which executes the command string in a subshell. If `evaluate_cmd` contains unsanitized user input, it can be exploited to execute unintended commands.\n\n### General Mitigation Advice\n\n1. **Avoid Using `os.system`:** Prefer using higher-level libraries like `subprocess` that provide better control over command execution.\n2. **Input Validation and Sanitization:** Always validate and sanitize user inputs to ensure they do not contain malicious content.\n3. **Use Parameterized Functions:** When possible, use functions that allow passing arguments as a list to avoid shell interpretation.\n4. **Least Privilege Principle:** Run your application with the least privileges necessary to limit the impact of a potential attack.\n\n### Source Code Fix Recommendation\n\nReplace `os.system(evaluate_cmd)` with `subprocess.run` using a list of arguments to avoid shell interpretation:\n\n```python\nimport subprocess\n\n# Example of a safe way to execute a command\ndef execute_command(command, args):\n    try:\n        # Use a list to pass the command and arguments\n        result = subprocess.run([command] + args, check=True, text=True, capture_output=True)\n        print(result.stdout)\n    except subprocess.CalledProcessError as e:\n        print(f\"An error occurred: {e}\")\n\n# Example usage\ncommand = \"ls\"\nargs = [\"-l\", \"/some/directory\"]\nexecute_command(command, args)\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library:\n\n- `subprocess`: This is a standard library in Python and does not require additional installation.\n\n### Relevant Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            },
+            {
+              "id": "glog-ff5ff883-ab34-4c47-9c00-49bf220a42ba",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. In Python, this often involves using predictable file paths or names in shared directories like `/tmp`, which can be exploited by an attacker to perform unauthorized actions, such as overwriting files or executing arbitrary code. This vulnerability is particularly concerning in multi-user environments where an attacker can anticipate the file names and create symbolic links or other malicious files.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File Functions**: Utilize Python's `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Avoid Predictable File Names**: Do not use predictable names for temporary files. Instead, let the system generate a unique name.\n3. **Set Appropriate Permissions**: Ensure that temporary files and directories have the least privilege necessary.\n4. **Clean Up**: Always remove temporary files and directories after they are no longer needed.\n\n### Source Code Fix Recommendation\n\nFor the specific vulnerability sink `default='/tmp/tf_examples.tfrecord'`, replace it with a secure method using the `tempfile` module:\n\n```python\nimport tempfile\n\n# Create a secure temporary file\nwith tempfile.NamedTemporaryFile(delete=False, suffix='.tfrecord') as temp_file:\n    temp_file_path = temp_file.name\n\n# Use temp_file_path as needed\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following library is required:\n\n- `tempfile` (This is a standard library in Python, so no additional installation is necessary.)\n\n### Relevant OWASP Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-377: Insecure Temporary File](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-ed3b0ae3-fd8f-41ae-bd93-9c8a71cc02ab",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. In Python, this often involves using hardcoded paths like `/tmp` for temporary storage, which can lead to security issues such as race conditions, unauthorized access, or data tampering. This is because `/tmp` is a shared directory, and other users or processes on the system might access or manipulate the files stored there.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's built-in `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Set Appropriate Permissions**: Ensure that temporary files and directories have restrictive permissions to prevent unauthorized access.\n3. **Avoid Predictable Names**: Use random or unique names for temporary files and directories to prevent name collisions and unauthorized access.\n\n### Source Code Fix Recommendation\n\nTo mitigate the vulnerability in the provided code snippet, replace the hardcoded `/tmp/census_data` directory with a secure temporary directory created using the `tempfile` module.\n\n```python\nimport argparse\nimport tempfile\nimport os\n\nparser = argparse.ArgumentParser()\n# Create a secure temporary directory\nwith tempfile.TemporaryDirectory() as tmpdirname:\n    parser.add_argument('--data_dir', type=str, default=tmpdirname)\n    # Rest of the code\n```\n\n### Library Dependencies\n\nThe code example requires the following library dependencies to execute properly:\n\n- `argparse`: This is part of the Python Standard Library, so no additional installation is required.\n- `tempfile`: Also part of the Python Standard Library, so no additional installation is required.\n- `os`: Part of the Python Standard Library, no additional installation is required.\n\n### Relevant OWASP Resources\n\n- [OWASP Top Ten 2021](https://owasp.org/Top10/)\n- [OWASP Secure Coding Practices - Quick Reference Guide](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-377: Insecure Temporary File](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-4d6ec38b-ec90-472c-911c-bc1ad03e012b",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Ensure Safety by Validating Members Before Using `tarfile.extractall`\" in Python arises when extracting files from a tar archive without validating the file paths. This can lead to a security issue known as a \"path traversal\" attack. An attacker can craft a tar file with file paths that, when extracted, overwrite critical files on the filesystem, potentially leading to arbitrary code execution or data corruption.\n\n### General Mitigation Advice\n\nTo mitigate this vulnerability, it is crucial to validate the file paths within the tar archive before extraction. This involves checking that the extracted file paths do not escape the intended extraction directory.\n\n### Source Code Fix Recommendation\n\nBelow is a code example demonstrating how to safely extract files from a tar archive by validating the file paths:\n\n```python\nimport os\nimport tarfile\n\ndef is_within_directory(directory, target):\n    abs_directory = os.path.abspath(directory)\n    abs_target = os.path.abspath(target)\n    return os.path.commonpath([abs_directory]) == os.path.commonpath([abs_directory, abs_target])\n\ndef safe_extract(tar, path=\".\", members=None, *, numeric_owner=False):\n    for member in tar.getmembers():\n        member_path = os.path.join(path, member.name)\n        if not is_within_directory(path, member_path):\n            raise Exception(\"Attempted Path Traversal in Tar File\")\n    tar.extractall(path, members, numeric_owner=numeric_owner)\n\n# Usage\nwith tarfile.open('example.tar', 'r') as tar:\n    safe_extract(tar, path='directory')\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library modules:\n\n- `os`\n- `tarfile`\n\nThese modules are part of the Python Standard Library and do not require additional installation.\n\n### Relevant Links\n\n- [OWASP Path Traversal](https://owasp.org/www-community/attacks/Path_Traversal)\n- [CWE-22: Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')](https://cwe.mitre.org/data/definitions/22.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B202"
+                ]
+              }
+            },
+            {
+              "id": "glog-1d6e272c-154b-4914-a920-e5bc77e50367",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. In Python, this often happens when using hardcoded paths like `/tmp` for temporary storage. This can lead to security issues such as race conditions, unauthorized access, or data tampering, especially in multi-user environments where `/tmp` is shared.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Avoid Hardcoded Paths**: Do not use hardcoded paths like `/tmp`. Instead, use system-provided mechanisms to determine the appropriate temporary directory.\n3. **Set Appropriate Permissions**: Ensure that temporary files and directories have the correct permissions to prevent unauthorized access.\n\n### Source Code Fix Recommendation\n\nFor the specific vulnerability sink:\n\n```python\nimport tempfile\nimport argparse\n\n# Create a secure temporary directory\nwith tempfile.TemporaryDirectory() as temp_dir:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--model_dir\", \"-md\", default=temp_dir)\n    args = parser.parse_args()\n\n    # Use args.model_dir as needed\n    print(f\"Using model directory: {args.model_dir}\")\n```\n\n### Library Dependencies\n\n- `argparse`: Standard library module, no installation required.\n- `tempfile`: Standard library module, no installation required.\n\n### Relevant OWASP Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-377: Insecure Temporary File](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-e341d04a-cba5-489d-83cb-cbf65a53e112",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. In Python, this often involves using predictable file or directory names in shared locations like `/tmp`. This can lead to security issues such as race conditions, where an attacker could potentially manipulate the temporary file or directory, leading to unauthorized access or data corruption.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Avoid Predictable Names**: Do not use predictable names for temporary files or directories. Instead, let the system generate a unique name.\n3. **Set Appropriate Permissions**: Ensure that temporary files and directories have the least privilege necessary.\n\n### Source Code Fix Recommendation\n\nFor the specific vulnerability sink:\n\n```python\nimport tempfile\nimport argparse\n\ndef main():\n    parser = argparse.ArgumentParser(description=\"Example script with secure temporary directory usage.\")\n    parser.add_argument(\"--data_dir\", \"-dd\", default=None, help=\"Directory to store temporary data.\")\n    args = parser.parse_args()\n\n    # Use a secure temporary directory\n    if args.data_dir is None:\n        with tempfile.TemporaryDirectory() as temp_dir:\n            print(f\"Using secure temporary directory: {temp_dir}\")\n            # Your code logic here\n    else:\n        print(f\"Using specified directory: {args.data_dir}\")\n        # Your code logic here\n\nif __name__ == \"__main__\":\n    main()\n```\n\n### Library Dependencies\n\n- `argparse`: Standard library module, no installation required.\n- `tempfile`: Standard library module, no installation required.\n\n### Relevant Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Cheat Sheet: File Upload](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)\n- [Common Weakness Enumeration: CWE-377](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-e4f71c8b-1933-4618-82a7-b8a6dd51a84c",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. In Python, this often involves using predictable file or directory names in shared locations like `/tmp`. This can lead to security issues such as race conditions, where an attacker could potentially manipulate the temporary file or directory, leading to unauthorized access or data corruption.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Avoid Predictable Names**: Do not use predictable names for temporary files or directories. Instead, let the system generate a unique name.\n3. **Set Appropriate Permissions**: Ensure that temporary files and directories have the least privilege necessary.\n\n### Source Code Fix Recommendation\n\nFor the specific vulnerability sink:\n\n```python\nimport tempfile\nimport argparse\n\ndef main():\n    parser = argparse.ArgumentParser(description=\"Example script with secure temporary directory usage.\")\n    parser.add_argument(\"--data_dir\", \"-dd\", default=None, help=\"Directory to store temporary data.\")\n    args = parser.parse_args()\n\n    # Use a secure temporary directory\n    if args.data_dir is None:\n        with tempfile.TemporaryDirectory() as temp_dir:\n            print(f\"Using secure temporary directory: {temp_dir}\")\n            # Your code logic here\n    else:\n        print(f\"Using specified directory: {args.data_dir}\")\n        # Your code logic here\n\nif __name__ == \"__main__\":\n    main()\n```\n\n### Library Dependencies\n\n- `argparse`: Standard library module, no installation required.\n- `tempfile`: Standard library module, no installation required.\n\n### Relevant Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Cheat Sheet: File Upload](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)\n- [Common Weakness Enumeration: CWE-377](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-1c23ae21-b1ef-4aa2-bef7-19bc6bebbbf2",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. In Python, this often involves using predictable file or directory names in shared locations like `/tmp`. This can lead to security issues such as race conditions, where an attacker could potentially manipulate the temporary file or directory, leading to unauthorized access or data corruption.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Avoid Predictable Names**: Do not use predictable names for temporary files or directories. Instead, let the system generate a unique name.\n3. **Set Appropriate Permissions**: Ensure that temporary files and directories have the least privilege necessary.\n\n### Source Code Fix Recommendation\n\nFor the specific vulnerability sink:\n\n```python\nimport tempfile\nimport argparse\n\ndef main():\n    parser = argparse.ArgumentParser(description=\"Example script with secure temporary directory usage.\")\n    parser.add_argument(\"--data_dir\", \"-dd\", default=None, help=\"Directory to store temporary data.\")\n    args = parser.parse_args()\n\n    # Use a secure temporary directory\n    if args.data_dir is None:\n        with tempfile.TemporaryDirectory() as temp_dir:\n            print(f\"Using secure temporary directory: {temp_dir}\")\n            # Your code logic here\n    else:\n        print(f\"Using specified directory: {args.data_dir}\")\n        # Your code logic here\n\nif __name__ == \"__main__\":\n    main()\n```\n\n### Library Dependencies\n\n- `argparse`: Standard library module, no installation required.\n- `tempfile`: Standard library module, no installation required.\n\n### Relevant Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Cheat Sheet: File Upload](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)\n- [Common Weakness Enumeration: CWE-377](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-0a8fa2ae-31d0-4542-96a0-d839ae15f4e4",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. In Python, this often happens when using hardcoded paths like `/tmp` for temporary storage. This can lead to security issues such as race conditions, unauthorized access, or data tampering, especially in multi-user environments where `/tmp` is shared.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Avoid Hardcoded Paths**: Do not use hardcoded paths like `/tmp`. Instead, use system-provided mechanisms to determine the appropriate temporary directory.\n3. **Set Appropriate Permissions**: Ensure that temporary files and directories have the correct permissions to prevent unauthorized access.\n\n### Source Code Fix Recommendation\n\nFor the specific vulnerability sink:\n\n```python\nimport tempfile\nimport argparse\n\n# Create a secure temporary directory\nwith tempfile.TemporaryDirectory() as temp_dir:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--model_dir\", \"-md\", default=temp_dir)\n    args = parser.parse_args()\n\n    # Use args.model_dir as needed\n    print(f\"Using model directory: {args.model_dir}\")\n```\n\n### Library Dependencies\n\n- `argparse`: Standard library module, no installation required.\n- `tempfile`: Standard library module, no installation required.\n\n### Relevant OWASP Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-377: Insecure Temporary File](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-f298e80e-5e19-4081-bf73-278394716207",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. In Python, this often happens when using hardcoded paths like `/tmp` for temporary storage. This can lead to security issues such as race conditions, unauthorized access, or data tampering, especially in multi-user environments where `/tmp` is shared.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Avoid Hardcoded Paths**: Do not use hardcoded paths like `/tmp`. Instead, use system-provided mechanisms to determine the appropriate temporary directory.\n3. **Set Appropriate Permissions**: Ensure that temporary files and directories have the correct permissions to prevent unauthorized access.\n\n### Source Code Fix Recommendation\n\nFor the specific vulnerability sink:\n\n```python\nimport tempfile\nimport argparse\n\n# Create a secure temporary directory\nwith tempfile.TemporaryDirectory() as temp_dir:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--model_dir\", \"-md\", default=temp_dir)\n    args = parser.parse_args()\n\n    # Use args.model_dir as needed\n    print(f\"Using model directory: {args.model_dir}\")\n```\n\n### Library Dependencies\n\n- `argparse`: Standard library module, no installation required.\n- `tempfile`: Standard library module, no installation required.\n\n### Relevant OWASP Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-377: Insecure Temporary File](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-282e725a-92dc-4ca7-8324-367d47080df8",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability associated with deserializing untrusted data using Python's `pickle` module arises from its ability to execute arbitrary code during the deserialization process. This can be exploited by an attacker to execute malicious code if they can control the input to the `pickle.load()` function. The `pickle` module is inherently insecure when handling untrusted data because it can instantiate any object and execute arbitrary code.\n\n### General Mitigation Advice\n\n1. **Avoid Using `pickle` for Untrusted Data**: If possible, avoid using `pickle` to deserialize data from untrusted sources. Consider using safer alternatives like `json` or `yaml` with safe loaders.\n\n2. **Use `pickle` Alternatives**: If serialization is necessary, use safer serialization libraries such as `json` or `msgpack` that do not allow code execution.\n\n3. **Validate and Sanitize Input**: Ensure that any data being deserialized is from a trusted source and has been validated and sanitized.\n\n4. **Use Restricted Execution Environments**: If deserialization of untrusted data is unavoidable, consider running the deserialization process in a restricted environment, such as a sandbox, to limit potential damage.\n\n### Source Code Fix Recommendation\n\nReplace the use of `pickle.load()` with a safer alternative. If the data format allows, use `json` for serialization and deserialization:\n\n```python\nimport json\n\n# Assuming 'f' is a file-like object containing JSON data\ndata = json.load(f)\n```\n\n### Library Dependencies\n\nFor the provided code example to execute properly, the following library is required:\n\n- `pickle`: This is a standard library in Python, so no additional installation is necessary.\n\nFor the recommended fix using `json`:\n\n- `json`: This is also a standard library in Python, so no additional installation is necessary.\n\n### Relevant OWASP Resources\n\n- [OWASP Deserialization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-502: Deserialization of Untrusted Data](https://cwe.mitre.org/data/definitions/502.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B301"
+                ]
+              }
+            },
+            {
+              "id": "glog-c59e3ec5-6425-47b6-aca7-74e1466483cb",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability associated with deserializing untrusted data using Python's `pickle` module arises from the fact that `pickle` can execute arbitrary code during the deserialization process. This means that if an attacker can control the input to `pickle.load()`, they can potentially execute arbitrary code on the server, leading to severe security risks such as data breaches, system compromise, or unauthorized access.\n\n### General Mitigation Advice\n\n1. **Avoid Using `pickle` for Untrusted Data**: If possible, avoid using `pickle` to deserialize data from untrusted sources. Consider using safer alternatives like `json` for data interchange, which does not allow code execution.\n\n2. **Use `pickle` with Caution**: If you must use `pickle`, ensure that the data being deserialized is from a trusted source. Validate and sanitize inputs rigorously.\n\n3. **Use Restricted Execution Environments**: If deserialization of untrusted data is unavoidable, consider running the deserialization process in a restricted environment, such as a sandbox, to limit potential damage.\n\n4. **Implement Access Controls**: Ensure that only authorized users can provide data for deserialization.\n\n### Source Code Fix Recommendation\n\nTo mitigate the risk of deserializing untrusted data with `pickle`, you can replace `pickle.load()` with a safer alternative, such as `json.load()`, if the data format allows it. Here's how you can modify the code:\n\n```python\nimport json\n\n# Assuming the data is JSON-serializable\nwith open('data.json', 'r') as opened_file:\n    data = json.load(opened_file)\n```\n\n### Library Dependencies\n\nFor the above code to execute properly, the following library is required:\n\n- `json` (This is a standard library in Python and does not require additional installation.)\n\n### Relevant Links\n\n- [OWASP Deserialization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html)\n- [CWE-502: Deserialization of Untrusted Data](https://cwe.mitre.org/data/definitions/502.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B301"
+                ]
+              }
+            },
+            {
+              "id": "glog-b6cc0d1f-7cd3-4611-97f9-b6fd3c8d7859",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe \"Potentially Unsafe Use of Temporary File/Directory\" vulnerability occurs when a program creates temporary files or directories in an insecure manner. This can lead to various security issues, such as unauthorized access, data corruption, or privilege escalation. In Python, this often happens when using hardcoded paths in shared directories like `/tmp` without proper safeguards.\n\n### General Mitigation Advice\n\n1. **Use Secure Temporary File/Directory Functions**: Utilize Python's `tempfile` module, which provides functions to create temporary files and directories securely.\n2. **Avoid Hardcoded Paths**: Do not use hardcoded paths for temporary files or directories. Instead, use system-provided mechanisms to determine safe locations.\n3. **Set Appropriate Permissions**: Ensure that temporary files and directories have the least privilege necessary and are not accessible by unauthorized users.\n\n### Source Code Fix Recommendation\n\nTo mitigate the vulnerability in the provided code snippet, replace the hardcoded path with a secure temporary file creation method:\n\n```python\nimport argparse\nimport tempfile\nimport os\n\nparser = argparse.ArgumentParser(description='Control telemetry capture')\n# Use tempfile to create a secure temporary file path\ndefault_socket_path = os.path.join(tempfile.gettempdir(), 'telemetry.s')\nparser.add_argument('--socket', action=\"store\", type=str, default=default_socket_path, help='Socket to control telemetry capture')\n```\n\n### Library Dependencies\n\nThe code example requires the following Python standard libraries:\n\n- `argparse`: For parsing command-line arguments.\n- `tempfile`: For creating temporary files and directories securely.\n- `os`: For interacting with the operating system, such as joining paths.\n\n### Relevant Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)\n- [Common Weakness Enumeration (CWE-377: Insecure Temporary File)](https://cwe.mitre.org/data/definitions/377.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B108"
+                ]
+              }
+            },
+            {
+              "id": "glog-a59ccd34-1332-487f-88ac-ca72e548bd71",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability described here involves deserializing untrusted data using Python's `pickle` module. The `pickle` module is used for serializing and deserializing Python objects. However, it is not secure against erroneous or maliciously constructed data. If you deserialize data from an untrusted source, it can lead to arbitrary code execution, which poses a significant security risk.\n\nIn the given code snippet, `pickle.loads(buffer)` is used to deserialize data from `buffer`, which is then appended to `data_list`. If `buffer` contains malicious data, it could execute arbitrary code during the deserialization process.\n\n### General Mitigation Advice\n\n1. **Avoid Using `pickle` for Untrusted Data**: Do not use `pickle` to deserialize data from untrusted sources. Consider using safer alternatives like `json` for data interchange formats.\n\n2. **Use `pickle` with Caution**: If you must use `pickle`, ensure that the data source is trusted and that the data has not been tampered with.\n\n3. **Implement Input Validation**: Validate and sanitize all inputs before processing them.\n\n4. **Use Restricted Execution Environments**: If deserialization of untrusted data is unavoidable, consider running the deserialization process in a restricted environment, such as a sandbox.\n\n### Source Code Fix Recommendation\n\nReplace the use of `pickle` with a safer alternative like `json` if possible. Here's an example of how you might modify the code:\n\n```python\nimport json\n\n# Assuming buffer is a JSON string\ntry:\n    data = json.loads(buffer)\n    data_list.append(data)\nexcept json.JSONDecodeError:\n    print(\"Invalid JSON data\")\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following library is required:\n\n- `json` (This is a standard library in Python and does not require installation)\n\n### Relevant Links\n\n- [OWASP Deserialization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html)\n- [CWE-502: Deserialization of Untrusted Data](https://cwe.mitre.org/data/definitions/502.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B301"
+                ]
+              }
+            },
+            {
+              "id": "glog-19ccb5e8-1595-4f31-9a50-eed22e76f3b2",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability associated with deserializing untrusted data using Python's `pickle` module arises from its ability to execute arbitrary code during the deserialization process. This can be exploited by an attacker to execute malicious code if they can control the input to the `pickle.load()` function. The `pickle` module is inherently insecure when handling untrusted data because it can instantiate any object and execute arbitrary code.\n\n### General Mitigation Advice\n\n1. **Avoid Using `pickle` for Untrusted Data**: If possible, avoid using `pickle` to deserialize data from untrusted sources. Consider using safer alternatives like `json` or `yaml` with safe loaders.\n\n2. **Use `pickle` Alternatives**: If serialization is necessary, use safer serialization libraries such as `json` or `msgpack` that do not allow code execution.\n\n3. **Validate and Sanitize Input**: Ensure that any data being deserialized is from a trusted source and has been validated and sanitized.\n\n4. **Use Restricted Execution Environments**: If deserialization of untrusted data is unavoidable, consider running the deserialization process in a restricted environment, such as a sandbox, to limit potential damage.\n\n### Source Code Fix Recommendation\n\nReplace the use of `pickle.load()` with a safer alternative. If the data format allows, use `json` for serialization and deserialization:\n\n```python\nimport json\n\n# Assuming 'f' is a file-like object containing JSON data\ndata = json.load(f)\n```\n\n### Library Dependencies\n\nFor the provided code example to execute properly, the following library is required:\n\n- `pickle`: This is a standard library in Python, so no additional installation is necessary.\n\nFor the recommended fix using `json`:\n\n- `json`: This is also a standard library in Python, so no additional installation is necessary.\n\n### Relevant OWASP Resources\n\n- [OWASP Deserialization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-502: Deserialization of Untrusted Data](https://cwe.mitre.org/data/definitions/502.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B301"
+                ]
+              }
+            },
+            {
+              "id": "glog-cdcaa9bc-6f69-4f07-9c2d-46d4c02e15b3",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability described here involves deserializing untrusted data using Python's `pickle` module. The `pickle` module is used for serializing and deserializing Python objects. However, it is not secure against erroneous or maliciously constructed data. If you deserialize data from an untrusted source, it can lead to arbitrary code execution, which poses a significant security risk.\n\nIn the given code snippet, `pickle.loads(buffer)` is used to deserialize data from `buffer`, which is then appended to `data_list`. If `buffer` contains malicious data, it could execute arbitrary code during the deserialization process.\n\n### General Mitigation Advice\n\n1. **Avoid Using `pickle` for Untrusted Data**: Do not use `pickle` to deserialize data from untrusted sources. Consider using safer alternatives like `json` for data interchange formats.\n\n2. **Use `pickle` with Caution**: If you must use `pickle`, ensure that the data source is trusted and that the data has not been tampered with.\n\n3. **Implement Input Validation**: Validate and sanitize all inputs before processing them.\n\n4. **Use Restricted Execution Environments**: If deserialization of untrusted data is unavoidable, consider running the deserialization process in a restricted environment, such as a sandbox.\n\n### Source Code Fix Recommendation\n\nReplace the use of `pickle` with a safer alternative like `json` if possible. Here's an example of how you might modify the code:\n\n```python\nimport json\n\n# Assuming buffer is a JSON string\ntry:\n    data = json.loads(buffer)\n    data_list.append(data)\nexcept json.JSONDecodeError:\n    print(\"Invalid JSON data\")\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following library is required:\n\n- `json` (This is a standard library in Python and does not require installation)\n\n### Relevant Links\n\n- [OWASP Deserialization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html)\n- [CWE-502: Deserialization of Untrusted Data](https://cwe.mitre.org/data/definitions/502.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B301"
+                ]
+              }
+            },
+            {
+              "id": "glog-91729665-146f-4377-8dff-745a1cc21227",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Utilization of Weak MD5 Hash for Security: Consideration of usedforsecurity=False\" arises when the MD5 hashing algorithm is used for security purposes. MD5 is considered cryptographically broken and unsuitable for further use due to its vulnerability to collision attacks. In Python, the `hashlib` library provides the MD5 hashing function, which can be used inappropriately for security-sensitive operations. The specific vulnerability occurs when `hashlib.md5()` is used without setting `usedforsecurity=False`, indicating that the hash is not intended for security purposes.\n\n### General Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use a more secure hashing algorithm, such as SHA-256, for cryptographic purposes. Additionally, if MD5 must be used for non-security purposes, ensure that `usedforsecurity=False` is explicitly set to indicate that the hash is not being used for security.\n\n### Source Code Fix Recommendation\n\nReplace the use of MD5 with a more secure hashing algorithm like SHA-256. If MD5 is used for non-security purposes, set `usedforsecurity=False`.\n\n#### Vulnerable Code\n\n```python\nimport hashlib\n\nfile_hash = hashlib.md5()\n```\n\n#### Fixed Code\n\n```python\nimport hashlib\n\n# Use SHA-256 for security purposes\nfile_hash = hashlib.sha256()\n\n# If MD5 is used for non-security purposes, set usedforsecurity=False\n# file_hash = hashlib.md5(usedforsecurity=False)\n```\n\n### Library Dependencies\n\nThe code example requires the following library to execute properly:\n\n- `hashlib`: This is a built-in library in Python, so no additional installation is required.\n\n### Relevant Resources\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B324"
+                ]
+              }
+            },
+            {
+              "id": "glog-b299e269-d496-425c-ab25-307c69fb86d7",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe use of the `eval()` function in Python can lead to significant security vulnerabilities, as it will execute arbitrary code passed to it. This can be exploited by attackers to execute malicious code, potentially leading to unauthorized access, data corruption, or other security breaches. The `eval()` function is particularly dangerous when used with untrusted input, as it can execute any code, including system commands.\n\n### General Mitigation Advice\n\nTo mitigate the risks associated with `eval()`, it is recommended to use `ast.literal_eval()` instead. The `ast.literal_eval()` function safely evaluates an expression node or a string containing a Python literal or container display. It only allows the evaluation of strings containing Python literals such as strings, numbers, tuples, lists, dicts, booleans, and `None`.\n\n### Source Code Fix Recommendation\n\nReplace the use of `eval()` with `ast.literal_eval()` when you need to evaluate a string containing a Python literal. Here is an example of how to fix the code:\n\n#### Vulnerable Code\n\n```python\nuser_input = \"some potentially unsafe input\"\nresult = eval(user_input)\n```\n\n#### Fixed Code\n\n```python\nimport ast\n\nuser_input = \"some potentially unsafe input\"\ntry:\n    result = ast.literal_eval(user_input)\nexcept (ValueError, SyntaxError):\n    # Handle the error or provide a safe default\n    result = None\n```\n\n### Library Dependencies\n\nTo execute the fixed code example, you need the following library:\n\n- `ast` (This is a built-in library in Python, so no additional installation is required.)\n\n### Relevant Links\n\n- [CWE-94: Improper Control of Generation of Code ('Code Injection')](https://cwe.mitre.org/data/definitions/94.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B307"
+                ]
+              }
+            },
+            {
+              "id": "glog-ef71d324-aa12-4b28-9571-e5c62aafc178",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe use of the `eval()` function in Python can lead to significant security vulnerabilities, as it will execute arbitrary code passed to it. This can be exploited by attackers to execute malicious code, potentially leading to unauthorized access, data corruption, or other security breaches. The `eval()` function is particularly dangerous when used with untrusted input, as it can execute any code, including system commands.\n\n### General Mitigation Advice\n\nTo mitigate the risks associated with `eval()`, it is recommended to use `ast.literal_eval()` instead. The `ast.literal_eval()` function safely evaluates an expression node or a string containing a Python literal or container display. It only allows the evaluation of strings containing Python literals such as strings, numbers, tuples, lists, dicts, booleans, and `None`.\n\n### Source Code Fix Recommendation\n\nReplace the use of `eval()` with `ast.literal_eval()` when you need to evaluate a string containing a Python literal. Here is an example of how to fix the code:\n\n#### Vulnerable Code\n\n```python\nuser_input = \"some potentially unsafe input\"\nresult = eval(user_input)\n```\n\n#### Fixed Code\n\n```python\nimport ast\n\nuser_input = \"some potentially unsafe input\"\ntry:\n    result = ast.literal_eval(user_input)\nexcept (ValueError, SyntaxError):\n    # Handle the error or provide a safe default\n    result = None\n```\n\n### Library Dependencies\n\nTo execute the fixed code example, you need the following library:\n\n- `ast` (This is a built-in library in Python, so no additional installation is required.)\n\n### Relevant Links\n\n- [CWE-94: Improper Control of Generation of Code ('Code Injection')](https://cwe.mitre.org/data/definitions/94.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B307"
+                ]
+              }
+            },
+            {
+              "id": "glog-0c22623e-c7ab-4800-891e-899adef21a81",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Utilization of Weak MD5 Hash for Security: Consideration of usedforsecurity=False\" arises when the MD5 hashing algorithm is used for security purposes. MD5 is considered cryptographically broken and unsuitable for further use due to its vulnerability to collision attacks. In Python, the `hashlib` library provides the MD5 hashing function, which can be used inappropriately for security-sensitive operations. The specific vulnerability occurs when `hashlib.md5()` is used without setting `usedforsecurity=False`, indicating that the hash is not intended for security purposes.\n\n### General Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use a more secure hashing algorithm, such as SHA-256, for cryptographic purposes. Additionally, if MD5 must be used for non-security purposes, ensure that `usedforsecurity=False` is explicitly set to indicate that the hash is not being used for security.\n\n### Source Code Fix Recommendation\n\nReplace the use of MD5 with a more secure hashing algorithm like SHA-256. If MD5 is used for non-security purposes, set `usedforsecurity=False`.\n\n#### Vulnerable Code\n\n```python\nimport hashlib\n\nfile_hash = hashlib.md5()\n```\n\n#### Fixed Code\n\n```python\nimport hashlib\n\n# Use SHA-256 for security purposes\nfile_hash = hashlib.sha256()\n\n# If MD5 is used for non-security purposes, set usedforsecurity=False\n# file_hash = hashlib.md5(usedforsecurity=False)\n```\n\n### Library Dependencies\n\nThe code example requires the following library to execute properly:\n\n- `hashlib`: This is a built-in library in Python, so no additional installation is required.\n\n### Relevant Resources\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B324"
+                ]
+              }
+            },
+            {
+              "id": "glog-db4f9337-4b5e-4660-8a43-8270ea6445da",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability in question arises from parsing untrusted XML data using the `xml.etree.ElementTree.parse` method in Python. This method is susceptible to XML External Entity (XXE) attacks, which can lead to serious security issues such as data exposure, denial of service, or server-side request forgery. The vulnerability occurs because the XML parser can process external entities, which can be exploited by an attacker to access sensitive data or execute arbitrary code.\n\n### General Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use the `defusedxml` library, which provides a safer alternative to the standard XML libraries by disabling the ability to process external entities and DTDs. Alternatively, you can invoke `defusedxml.defuse_stdlib()` to patch the standard library XML modules to prevent these attacks.\n\n### Source Code Fix Recommendation\n\nReplace the vulnerable code with a safer alternative using `defusedxml.ElementTree`:\n\n```python\nimport defusedxml.ElementTree as ET\n\n# Ensure that defusedxml is used to parse the XML file\nobjects = ET.parse(annotation_file).findall(\"object\")\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following library dependencies are required:\n\n- `defusedxml`\n\nYou can install this dependency using pip:\n\n```bash\npip install defusedxml\n```\n\n### Relevant Resources\n\n- [OWASP XML External Entity (XXE) Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html)\n- [Common Weakness Enumeration: CWE-611: Improper Restriction of XML External Entity Reference ('XXE')](https://cwe.mitre.org/data/definitions/611.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B314"
+                ]
+              }
+            },
+            {
+              "id": "glog-8aa2bcb8-a4ce-43aa-8602-dfda2271e312",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability associated with deserializing untrusted data using Python's `pickle` module arises from the fact that `pickle` can execute arbitrary code during the deserialization process. This means that if an attacker can control the input to `pickle.load()`, they can potentially execute arbitrary code on the server, leading to severe security risks such as data breaches, system compromise, or denial of service.\n\n### General Mitigation Advice\n\n1. **Avoid Using `pickle` for Untrusted Data**: If possible, avoid using `pickle` to deserialize data from untrusted sources. Consider using safer alternatives like `json` or `yaml` for serialization and deserialization, as they do not allow code execution.\n\n2. **Use `pickle` Safely**: If you must use `pickle`, ensure that the data being deserialized is from a trusted source. Validate and sanitize all inputs before deserialization.\n\n3. **Use Restricted Unpickling**: Consider using the `pickle` module's `RestrictedUnpickler` to limit the classes and functions that can be deserialized.\n\n4. **Implement Sandboxing**: Run deserialization in a restricted environment or sandbox to limit the potential impact of malicious code execution.\n\n### Source Code Fix Recommendation\n\nReplace the use of `pickle.load()` with a safer alternative, such as `json.load()`, if the data format allows it. Here's an example of how you might refactor the code:\n\n```python\nimport json\n\n# Assuming the data is JSON-serializable\nwith open('data.json', 'r') as fin:\n    ret = json.load(fin)\n```\n\nIf you must use `pickle`, ensure the data source is trusted and consider using a custom unpickler with restricted capabilities.\n\n### Library Dependencies\n\nFor the provided code example using `json`, the only library dependency is the Python standard library:\n\n- `json`\n\n### Relevant Links\n\n- [OWASP Deserialization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html)\n- [CWE-502: Deserialization of Untrusted Data](https://cwe.mitre.org/data/definitions/502.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B301"
+                ]
+              }
+            },
+            {
+              "id": "glog-84ad79c4-1c16-4fd9-964c-209b273c9240",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability associated with deserializing untrusted data using Python's `pickle` module arises from the fact that `pickle` can execute arbitrary code during the deserialization process. This means that if an attacker can control the input to `pickle.load()`, they can potentially execute arbitrary code on the server, leading to severe security risks such as data breaches, system compromise, or denial of service.\n\n### General Mitigation Advice\n\n1. **Avoid Using `pickle` for Untrusted Data**: If possible, avoid using `pickle` to deserialize data from untrusted sources. Consider using safer alternatives like `json` or `yaml` for serialization and deserialization, as they do not allow code execution.\n\n2. **Use `pickle` Safely**: If you must use `pickle`, ensure that the data being deserialized is from a trusted source. Validate and sanitize all inputs before deserialization.\n\n3. **Use Restricted Unpickling**: Consider using the `pickle` module's `RestrictedUnpickler` to limit the classes and functions that can be deserialized.\n\n4. **Implement Sandboxing**: Run deserialization in a restricted environment or sandbox to limit the potential impact of malicious code execution.\n\n### Source Code Fix Recommendation\n\nReplace the use of `pickle.load()` with a safer alternative, such as `json.load()`, if the data format allows it. Here's an example of how you might refactor the code:\n\n```python\nimport json\n\n# Assuming the data is JSON-serializable\nwith open('data.json', 'r') as fin:\n    ret = json.load(fin)\n```\n\nIf you must use `pickle`, ensure the data source is trusted and consider using a custom unpickler with restricted capabilities.\n\n### Library Dependencies\n\nFor the provided code example using `json`, the only library dependency is the Python standard library:\n\n- `json`\n\n### Relevant Links\n\n- [OWASP Deserialization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html)\n- [CWE-502: Deserialization of Untrusted Data](https://cwe.mitre.org/data/definitions/502.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B301"
+                ]
+              }
+            },
+            {
+              "id": "glog-d8747d82-5233-4db2-b982-26a6aaec79b0",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection and Security Concern Identified\" in Python arises when user input is directly incorporated into shell commands without proper validation or sanitization. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the host system. The specific vulnerability sink in the provided code is the use of `os.system` with an f-string that includes user-controlled variables, `tmp_dir` and `target_dir`, which can be manipulated to execute unintended commands.\n\n### General Mitigation Advice\n\n1. **Avoid Using `os.system`:** Prefer using higher-level abstractions like the `subprocess` module, which provides more control and security.\n2. **Input Validation and Sanitization:** Always validate and sanitize inputs to ensure they conform to expected formats and do not contain malicious content.\n3. **Use Safe APIs:** When dealing with file operations, use APIs that do not invoke the shell, such as `os.symlink` for creating symbolic links.\n4. **Principle of Least Privilege:** Run your application with the minimum privileges necessary to limit the impact of a potential compromise.\n\n### Source Code Fix Recommendation\n\nReplace the use of `os.system` with `os.symlink` to avoid shell invocation:\n\n```python\nimport os\n\n# Ensure tmp_dir and target_dir are validated and sanitized\n# Example: Validate that they are valid directory paths\n\n# Create a symbolic link without invoking the shell\nos.symlink(f\"{tmp_dir}/model.so\", f\"{target_dir}/model.so\")\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library dependency to execute properly:\n\n- `os`: This is a standard library module in Python, so no additional installation is required.\n\n### Relevant Links\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            },
+            {
+              "id": "glog-5a5850b4-62cc-4d47-ae6a-e9af4ab2dc6b",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability arises when parsing untrusted XML data using the `xml.etree.ElementTree.parse` method in Python. This method is susceptible to XML External Entity (XXE) attacks, which can lead to exposure of sensitive data, denial of service, or other security issues. The vulnerability is due to the fact that the XML parser can process external entities, which can be exploited by an attacker to access local files or network resources.\n\n### General Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use the `defusedxml` library, which provides a safer alternative to the standard XML libraries by disabling the ability to process external entities and DTDs. Alternatively, you can ensure that `defusedxml.defuse_stdlib()` is invoked to patch the standard library XML modules to prevent these attacks.\n\n### Source Code Fix Recommendation\n\nReplace the vulnerable code with the following:\n\n```python\nimport defusedxml.ElementTree as ET\n\ntree = ET.parse(filename)\n```\n\nAlternatively, if you want to patch the standard library:\n\n```python\nimport defusedxml\n\ndefusedxml.defuse_stdlib()\n\nimport xml.etree.ElementTree as ET\n\ntree = ET.parse(filename)\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following library is required:\n\n- `defusedxml`\n\nYou can install it using pip:\n\n```bash\npip install defusedxml\n```\n\n### Relevant OWASP Resources\n\n- [OWASP XML External Entity (XXE) Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-611: Improper Restriction of XML External Entity Reference ('XXE')](https://cwe.mitre.org/data/definitions/611.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B314"
+                ]
+              }
+            },
+            {
+              "id": "glog-2814b272-d458-4ce7-8366-3ee9be895692",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability associated with deserializing untrusted data using Python's `pickle` module arises from the fact that `pickle` can execute arbitrary code during the deserialization process. This means that if an attacker can control the input to `pickle.load()`, they can potentially execute arbitrary code on the system, leading to severe security risks such as data breaches, system compromise, or denial of service.\n\n### General Mitigation Advice\n\n1. **Avoid Using `pickle` for Untrusted Data**: If possible, avoid using `pickle` to deserialize data from untrusted sources. Consider using safer alternatives like `json` for data interchange, which does not allow code execution.\n\n2. **Use `pickle` Safely**: If you must use `pickle`, ensure that the data being deserialized is from a trusted source. Validate and sanitize inputs rigorously.\n\n3. **Use Restricted Unpickling**: Consider using the `pickle` module's `RestrictedUnpickler` to limit the classes and functions that can be deserialized.\n\n4. **Environment Isolation**: Run deserialization processes in a restricted environment, such as a container or a virtual machine, to limit the impact of potential exploits.\n\n### Source Code Fix Recommendation\n\nReplace the use of `pickle.load()` with a safer alternative, such as `json.load()`, if the data format allows. If `pickle` must be used, ensure the data source is trusted.\n\n```python\nimport json\n\n# Assuming 'f' is a file-like object containing JSON data\nrecs = json.load(f)\n```\n\nIf `pickle` is necessary and the data source is trusted:\n\n```python\nimport pickle\n\n# Ensure 'f' is a file-like object from a trusted source\nrecs = pickle.load(f)\n```\n\n### Library Dependencies\n\nFor the code example to execute properly, the following library dependencies are required:\n\n- `pickle` (standard library)\n- `json` (standard library)\n\n### Relevant Links\n\n- [OWASP Deserialization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html)\n- [CWE-502: Deserialization of Untrusted Data](https://cwe.mitre.org/data/definitions/502.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B301"
+                ]
+              }
+            },
+            {
+              "id": "glog-ec7c4a1f-5791-4021-8851-44eeba9a1280",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection Detected, Security Concern\" in Python arises when user input is directly passed to shell commands without proper sanitization or validation. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the host system. The use of `os.system()` with formatted strings is particularly risky, as it directly executes the command in the shell.\n\n### Mitigation Advice\n\n1. **Avoid Using `os.system()`**: Prefer using the `subprocess` module, which provides more control and security.\n2. **Input Validation**: Always validate and sanitize inputs to ensure they do not contain malicious content.\n3. **Use Safe APIs**: Use APIs that do not invoke the shell or that allow specifying arguments as a list to avoid shell interpretation.\n\n### Source Code Fix Recommendation\n\nReplace the use of `os.system()` with `subprocess.run()` and pass the command and arguments as a list to avoid shell interpretation:\n\n```python\nimport subprocess\n\n# Assuming cmake_prefix_path, torch_libraries, and target_dir are sanitized and validated\nsubprocess.run([\n    \"bash\", \"-c\",\n    f\"export CMAKE_PREFIX_PATH={cmake_prefix_path} && \"\n    f\"export TORCH_LIBRARIES={torch_libraries} && \"\n    f\"cd {target_dir} && cmake . && make\"\n])\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library:\n\n- `subprocess`: This is part of the Python standard library and does not require additional installation.\n\n### OWASP Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            },
+            {
+              "id": "glog-21ccda1d-a57b-462e-bb04-bbd70d6a6784",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection Detected, Security Concern\" in Python arises when user input is directly passed to shell commands without proper validation or sanitization. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the server. The specific vulnerability sink in the code example is the use of `os.system` with formatted strings that include user-controlled input.\n\n### Vulnerability Sink\n\n```python\nos.system(f\"cp {tmp_dir}/inputs.pt {target_dir}/inputs.pt\")\n```\n\n### General Mitigation Advice\n\n1. **Avoid Using `os.system`**: Prefer using higher-level functions that do not invoke the shell, such as `subprocess.run` with a list of arguments.\n2. **Input Validation**: Ensure that any input used in shell commands is properly validated and sanitized.\n3. **Use Safe APIs**: Use APIs that do not require shell invocation, such as `shutil.copy` for file operations.\n\n### Source Code Fix Recommendation\n\nReplace the vulnerable `os.system` call with a safer alternative using the `shutil` library:\n\n```python\nimport shutil\n\n# Securely copy the file without invoking the shell\nshutil.copy(f\"{tmp_dir}/inputs.pt\", f\"{target_dir}/inputs.pt\")\n```\n\n### Library Dependencies\n\nTo execute the code example properly, the following standard library is required:\n\n- `shutil`: This is a standard library in Python, so no additional installation is necessary.\n\n### Relevant Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            },
+            {
+              "id": "glog-415a3b98-2009-430c-8a2d-4c88c3679b9e",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection and Security Concern Identified\" in Python arises when user input is used to construct shell commands without proper validation or sanitization. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the host system. The specific vulnerability sink in this case is the use of `os.system(composed_cmd)`, which directly executes the command string in the shell.\n\n### General Mitigation Advice\n\n1. **Avoid Shell Execution**: Use Python's built-in libraries to perform tasks instead of executing shell commands.\n2. **Input Validation**: Validate and sanitize all user inputs to ensure they conform to expected formats.\n3. **Use Safer Alternatives**: Use `subprocess.run()` or `subprocess.Popen()` with a list of arguments instead of a single string to avoid shell interpretation.\n4. **Least Privilege**: Run the application with the least privileges necessary to limit the impact of a potential compromise.\n\n### Source Code Fix Recommendation\n\nReplace the use of `os.system()` with `subprocess.run()` using a list of arguments to avoid shell interpretation:\n\n```python\nimport subprocess\n\n# Example of a potentially vulnerable command\n# composed_cmd = \"ls \" + user_input\n\n# Secure alternative using subprocess\ndef execute_command(user_input):\n    # Validate and sanitize user_input as necessary\n    command = [\"ls\", user_input]\n    try:\n        result = subprocess.run(command, check=True, text=True, capture_output=True)\n        print(result.stdout)\n    except subprocess.CalledProcessError as e:\n        print(f\"An error occurred: {e}\")\n\n# Example usage\nuser_input = \"example_directory\"\nexecute_command(user_input)\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library:\n\n- `subprocess`: This is part of Python's standard library and does not require additional installation.\n\n### Relevant Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            },
+            {
+              "id": "glog-fd3f42d2-a828-4d41-a1d8-6b8591b49e30",
+              "help": {
+                "text": "",
+                "markdown": "### Description\n\nThe vulnerability \"Initiating a Shell Process: Potential Injection and Security Concern Identified\" in Python arises when user input is used to construct shell commands without proper validation or sanitization. This can lead to command injection attacks, where an attacker can execute arbitrary commands on the host system. The specific vulnerability sink in this case is the use of `os.system(composed_cmd)`, which directly executes the command string in the shell.\n\n### General Mitigation Advice\n\n1. **Avoid Shell Execution**: Use Python's built-in libraries to perform tasks instead of executing shell commands.\n2. **Input Validation**: Validate and sanitize all user inputs to ensure they conform to expected formats.\n3. **Use Safer Alternatives**: Use `subprocess.run()` or `subprocess.Popen()` with a list of arguments instead of a single string to avoid shell interpretation.\n4. **Least Privilege**: Run the application with the least privileges necessary to limit the impact of a potential compromise.\n\n### Source Code Fix Recommendation\n\nReplace the use of `os.system()` with `subprocess.run()` using a list of arguments to avoid shell interpretation:\n\n```python\nimport subprocess\n\n# Example of a potentially vulnerable command\n# composed_cmd = \"ls \" + user_input\n\n# Secure alternative using subprocess\ndef execute_command(user_input):\n    # Validate and sanitize user_input as necessary\n    command = [\"ls\", user_input]\n    try:\n        result = subprocess.run(command, check=True, text=True, capture_output=True)\n        print(result.stdout)\n    except subprocess.CalledProcessError as e:\n        print(f\"An error occurred: {e}\")\n\n# Example usage\nuser_input = \"example_directory\"\nexecute_command(user_input)\n```\n\n### Library Dependencies\n\nThe code example requires the following standard library:\n\n- `subprocess`: This is part of Python's standard library and does not require additional installation.\n\n### Relevant Resources\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B605"
+                ]
+              }
+            }
+          ],
+          "language": "en-US",
+          "contents": [
+            "localizedData",
+            "nonLocalizedData"
+          ],
+          "isComprehensive": false
+        }
+      },
+      "language": "en-US",
+      "results": [
+        {
+          "ruleId": "glog-7f7a5eeb-0f3c-4a89-bcdf-61f23aa372b3",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/common/base_model_init.py"
+                },
+                "region": {
+                  "startLine": 129,
+                  "startColumn": 13,
+                  "endLine": 129,
+                  "endColumn": 27,
+                  "snippet": {
+                    "text": "            os.system(cmd)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 128,
+                  "endLine": 130,
+                  "snippet": {
+                    "text": "\n            os.system(cmd)\n\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-aa9d819a-2a8a-4e5a-923f-e7c444d715b3",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "subprocess call with shell=True identified, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/common/platform_util.py"
+                },
+                "region": {
+                  "startLine": 381,
+                  "startColumn": 27,
+                  "endLine": 381,
+                  "endColumn": 72,
+                  "snippet": {
+                    "text": "            wmic_output = subprocess.check_output(wmic_cmd, shell=True)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 380,
+                  "endLine": 382,
+                  "snippet": {
+                    "text": "        try:\n            wmic_output = subprocess.check_output(wmic_cmd, shell=True)\n\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-c659414b-18f2-43f1-8c4d-f86a1f49ae10",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "subprocess call with shell=True identified, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/common/platform_util.py"
+                },
+                "region": {
+                  "startLine": 333,
+                  "startColumn": 33,
+                  "endLine": 334,
+                  "endColumn": 48,
+                  "snippet": {
+                    "text": "                    cpu_array = subprocess.Popen(\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 333,
+                  "endLine": 337,
+                  "snippet": {
+                    "text": "                    cpu_array = subprocess.Popen(\n                        cpu_array_command, shell=True, stdout=subprocess.PIPE,\n                        stderr=subprocess.PIPE).stdout.readlines()\n\n                    for node_cpus in cpu_array:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-c15d7827-c6b7-429a-812d-bcca064153d1",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/diffusion/tensorflow/stable_diffusion/inference/fp32/model_init.py"
+                },
+                "region": {
+                  "startLine": 53,
+                  "startColumn": 31,
+                  "endLine": 53,
+                  "endColumn": 55,
+                  "snippet": {
+                    "text": "            type=str, default='/tmp/stable_diffusion/',\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 52,
+                  "endLine": 54,
+                  "snippet": {
+                    "text": "            \"--output-dir\", dest='output_dir',\n            type=str, default='/tmp/stable_diffusion/',\n            help='Specify the location of the '\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-1804b139-e7d6-4bcb-9043-7d7e1a78280f",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/diffusion/tensorflow/stable_diffusion/inference/fp16/model_init.py"
+                },
+                "region": {
+                  "startLine": 53,
+                  "startColumn": 31,
+                  "endLine": 53,
+                  "endColumn": 55,
+                  "snippet": {
+                    "text": "            type=str, default='/tmp/stable_diffusion/',\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 52,
+                  "endLine": 54,
+                  "snippet": {
+                    "text": "            \"--output-dir\", dest='output_dir',\n            type=str, default='/tmp/stable_diffusion/',\n            help='Specify the location of the '\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-8e80268c-62bf-4286-b670-7378bbff69f8",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/common/base_model_init.py"
+                },
+                "region": {
+                  "startLine": 254,
+                  "startColumn": 9,
+                  "endLine": 254,
+                  "endColumn": 42,
+                  "snippet": {
+                    "text": "        os.system(multi_instance_command)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 253,
+                  "endLine": 255,
+                  "snippet": {
+                    "text": "        sys.stdout.flush()\n        os.system(multi_instance_command)\n\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-a6688d62-a426-435b-b01f-b6848eda541a",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/diffusion/tensorflow/stable_diffusion/inference/bfloat16/model_init.py"
+                },
+                "region": {
+                  "startLine": 53,
+                  "startColumn": 31,
+                  "endLine": 53,
+                  "endColumn": 55,
+                  "snippet": {
+                    "text": "            type=str, default='/tmp/stable_diffusion/',\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 52,
+                  "endLine": 54,
+                  "snippet": {
+                    "text": "            \"--output-dir\", dest='output_dir',\n            type=str, default='/tmp/stable_diffusion/',\n            help='Specify the location of the '\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-359b8e6e-8baf-4281-a2b9-1b285f350b15",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/language_modeling/tensorflow/bert_large/inference/fp32/model_init.py"
+                },
+                "region": {
+                  "startLine": 204,
+                  "startColumn": 17,
+                  "endLine": 204,
+                  "endColumn": 40,
+                  "snippet": {
+                    "text": "                os.system(evaluate_cmd)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 203,
+                  "endLine": 205,
+                  "snippet": {
+                    "text": "                    predictions_json)\n                os.system(evaluate_cmd)\n            else:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-61733684-9baf-47be-968b-2abd56e5c15a",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/language_modeling/tensorflow/bert_large/inference/bfloat16/model_init.py"
+                },
+                "region": {
+                  "startLine": 186,
+                  "startColumn": 17,
+                  "endLine": 186,
+                  "endColumn": 40,
+                  "snippet": {
+                    "text": "                os.system(evaluate_cmd)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 185,
+                  "endLine": 187,
+                  "snippet": {
+                    "text": "                    predictions_json)\n                os.system(evaluate_cmd)\n            else:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-38a94df4-4fd7-4933-90f2-c62797a42f6c",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/language_modeling/tensorflow/bert_large/training/bfloat16/model_init.py"
+                },
+                "region": {
+                  "startLine": 80,
+                  "startColumn": 41,
+                  "endLine": 80,
+                  "endColumn": 68,
+                  "snippet": {
+                    "text": "                                default='/tmp/tf_examples.tfrecord')\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 79,
+                  "endLine": 81,
+                  "snippet": {
+                    "text": "        arg_parser.add_argument('--input-file', help=' Input file for pretraining', dest=\"input_file\",\n                                default='/tmp/tf_examples.tfrecord')\n        arg_parser.add_argument('--do-eval', help=' Eval for pretraing', dest=\"do_eval\", default=\"True\")\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-8435e211-117f-40d2-82df-bdf2e9f8d786",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/language_modeling/tensorflow/bert_large/training/fp32/model_init.py"
+                },
+                "region": {
+                  "startLine": 80,
+                  "startColumn": 41,
+                  "endLine": 80,
+                  "endColumn": 68,
+                  "snippet": {
+                    "text": "                                default='/tmp/tf_examples.tfrecord')\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 79,
+                  "endLine": 81,
+                  "snippet": {
+                    "text": "        arg_parser.add_argument('--input-file', help=' Input file for pretraining', dest=\"input_file\",\n                                default='/tmp/tf_examples.tfrecord')\n        arg_parser.add_argument('--do-eval', help=' Eval for pretraing', dest=\"do_eval\", default=\"True\")\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-7475552e-4107-4d88-b2c0-a1b4e5bffc39",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/language_modeling/tensorflow/bert_large/inference/fp16/model_init.py"
+                },
+                "region": {
+                  "startLine": 202,
+                  "startColumn": 17,
+                  "endLine": 202,
+                  "endColumn": 40,
+                  "snippet": {
+                    "text": "                os.system(evaluate_cmd)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 201,
+                  "endLine": 203,
+                  "snippet": {
+                    "text": "                    predictions_json)\n                os.system(evaluate_cmd)\n            else:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-9a0831cf-78fc-4c92-9225-3bd9c8d489be",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/language_modeling/tensorflow/bert_large/inference/int8/model_init.py"
+                },
+                "region": {
+                  "startLine": 190,
+                  "startColumn": 17,
+                  "endLine": 190,
+                  "endColumn": 40,
+                  "snippet": {
+                    "text": "                os.system(evaluate_cmd)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 189,
+                  "endLine": 191,
+                  "snippet": {
+                    "text": "                    predictions_json)\n                os.system(evaluate_cmd)\n            else:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-ff5ff883-ab34-4c47-9c00-49bf220a42ba",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/language_modeling/tensorflow/bert_large/training/fp16/model_init.py"
+                },
+                "region": {
+                  "startLine": 81,
+                  "startColumn": 41,
+                  "endLine": 81,
+                  "endColumn": 68,
+                  "snippet": {
+                    "text": "                                default='/tmp/tf_examples.tfrecord')\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 80,
+                  "endLine": 82,
+                  "snippet": {
+                    "text": "        arg_parser.add_argument('--input-file', help=' Input file for pretraining', dest=\"input_file\",\n                                default='/tmp/tf_examples.tfrecord')\n        arg_parser.add_argument('--do-eval', help=' Eval for pretraing', dest=\"do_eval\", default=\"True\")\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-ed3b0ae3-fd8f-41ae-bd93-9c8a71cc02ab",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "benchmarks/recommendation/tensorflow/wide_deep/inference/fp32/data_download.py"
+                },
+                "region": {
+                  "startLine": 35,
+                  "startColumn": 53,
+                  "endLine": 35,
+                  "endColumn": 71,
+                  "snippet": {
+                    "text": "parser.add_argument('--data_dir', type=str, default='/tmp/census_data',\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 34,
+                  "endLine": 36,
+                  "snippet": {
+                    "text": "\nparser.add_argument('--data_dir', type=str, default='/tmp/census_data',\n                    help='Directory to download census data')\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-4d6ec38b-ec90-472c-911c-bc1ad03e012b",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "tarfile.extractall used without any validation. Please check and discard dangerous members."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "datasets/imagenet/imagenet_to_gcs.py"
+                },
+                "region": {
+                  "startLine": 112,
+                  "startColumn": 7,
+                  "endLine": 112,
+                  "endColumn": 37,
+                  "snippet": {
+                    "text": "      tar.extractall(path=directory)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 111,
+                  "endLine": 113,
+                  "snippet": {
+                    "text": "    if member is None:\n      tar.extractall(path=directory)\n    else:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-1d6e272c-154b-4914-a920-e5bc77e50367",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models/common/tensorflow/mlperf_utils/arg_parsers/parsers.py"
+                },
+                "region": {
+                  "startLine": 126,
+                  "startColumn": 41,
+                  "endLine": 126,
+                  "endColumn": 47,
+                  "snippet": {
+                    "text": "          \"--model_dir\", \"-md\", default=\"/tmp\",\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 125,
+                  "endLine": 127,
+                  "snippet": {
+                    "text": "      self.add_argument(\n          \"--model_dir\", \"-md\", default=\"/tmp\",\n          help=\"[default: %(default)s] The location of the model checkpoint \"\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-e341d04a-cba5-489d-83cb-cbf65a53e112",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models/image_recognition/tensorflow/resnet50v1_5/training/gpu/mlperf_utils/arg_parsers/parsers.py"
+                },
+                "region": {
+                  "startLine": 119,
+                  "startColumn": 40,
+                  "endLine": 119,
+                  "endColumn": 46,
+                  "snippet": {
+                    "text": "          \"--data_dir\", \"-dd\", default=\"/tmp\",\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 118,
+                  "endLine": 120,
+                  "snippet": {
+                    "text": "      self.add_argument(\n          \"--data_dir\", \"-dd\", default=\"/tmp\",\n          help=\"[default: %(default)s] The location of the input data.\",\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-e4f71c8b-1933-4618-82a7-b8a6dd51a84c",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models/common/tensorflow/mlperf_utils/arg_parsers/parsers.py"
+                },
+                "region": {
+                  "startLine": 119,
+                  "startColumn": 40,
+                  "endLine": 119,
+                  "endColumn": 46,
+                  "snippet": {
+                    "text": "          \"--data_dir\", \"-dd\", default=\"/tmp\",\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 118,
+                  "endLine": 120,
+                  "snippet": {
+                    "text": "      self.add_argument(\n          \"--data_dir\", \"-dd\", default=\"/tmp\",\n          help=\"[default: %(default)s] The location of the input data.\",\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-1c23ae21-b1ef-4aa2-bef7-19bc6bebbbf2",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models/image_recognition/tensorflow/resnet50v1_5/training/cpu/mlperf_utils/arg_parsers/parsers.py"
+                },
+                "region": {
+                  "startLine": 138,
+                  "startColumn": 40,
+                  "endLine": 138,
+                  "endColumn": 46,
+                  "snippet": {
+                    "text": "          \"--data_dir\", \"-dd\", default=\"/tmp\",\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 137,
+                  "endLine": 139,
+                  "snippet": {
+                    "text": "      self.add_argument(\n          \"--data_dir\", \"-dd\", default=\"/tmp\",\n          help=\"[default: %(default)s] The location of the input data.\",\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-0a8fa2ae-31d0-4542-96a0-d839ae15f4e4",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models/image_recognition/tensorflow/resnet50v1_5/training/gpu/mlperf_utils/arg_parsers/parsers.py"
+                },
+                "region": {
+                  "startLine": 126,
+                  "startColumn": 41,
+                  "endLine": 126,
+                  "endColumn": 47,
+                  "snippet": {
+                    "text": "          \"--model_dir\", \"-md\", default=\"/tmp\",\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 125,
+                  "endLine": 127,
+                  "snippet": {
+                    "text": "      self.add_argument(\n          \"--model_dir\", \"-md\", default=\"/tmp\",\n          help=\"[default: %(default)s] The location of the model checkpoint \"\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-f298e80e-5e19-4081-bf73-278394716207",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models/image_recognition/tensorflow/resnet50v1_5/training/cpu/mlperf_utils/arg_parsers/parsers.py"
+                },
+                "region": {
+                  "startLine": 145,
+                  "startColumn": 41,
+                  "endLine": 145,
+                  "endColumn": 47,
+                  "snippet": {
+                    "text": "          \"--model_dir\", \"-md\", default=\"/tmp\",\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 144,
+                  "endLine": 146,
+                  "snippet": {
+                    "text": "      self.add_argument(\n          \"--model_dir\", \"-md\", default=\"/tmp\",\n          help=\"[default: %(default)s] The location of the model checkpoint \"\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-282e725a-92dc-4ca7-8324-367d47080df8",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/maskrcnn/inference/cpu/maskrcnn-benchmark/maskrcnn_benchmark/utils/c2_model_loading.py"
+                },
+                "region": {
+                  "startLine": 156,
+                  "startColumn": 16,
+                  "endLine": 156,
+                  "endColumn": 49,
+                  "snippet": {
+                    "text": "        data = pickle.load(f, encoding=\"latin1\")\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 155,
+                  "endLine": 157,
+                  "snippet": {
+                    "text": "    with open(file_path, \"rb\") as f:\n        data = pickle.load(f, encoding=\"latin1\")\n    if \"blobs\" in data:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-c59e3ec5-6425-47b6-aca7-74e1466483cb",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models/image_segmentation/tensorflow/3d_unet/inference/fp32/unet3d/utils/utils.py"
+                },
+                "region": {
+                  "startLine": 18,
+                  "startColumn": 16,
+                  "endLine": 18,
+                  "endColumn": 40,
+                  "snippet": {
+                    "text": "        return pickle.load(opened_file)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 17,
+                  "endLine": 19,
+                  "snippet": {
+                    "text": "    with open(in_file, \"rb\") as opened_file:\n        return pickle.load(opened_file)\n\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-b6cc0d1f-7cd3-4611-97f9-b6fd3c8d7859",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Probable insecure usage of temp file/directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/common/benchmark.py"
+                },
+                "region": {
+                  "startLine": 70,
+                  "startColumn": 71,
+                  "endLine": 70,
+                  "endColumn": 89,
+                  "snippet": {
+                    "text": "    parser.add_argument('--socket', action=\"store\", type=str, default='/tmp/telemetry.s', help='Socket to control telemetry capture')\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 69,
+                  "endLine": 71,
+                  "snippet": {
+                    "text": "    parser.add_argument('--platform', help='System on which telemetry is being collected', default='', required=True, choices=platform_choices)\n    parser.add_argument('--socket', action=\"store\", type=str, default='/tmp/telemetry.s', help='Socket to control telemetry capture')\n    parser.add_argument('--telemetry', action=\"store_true\", help='enable GPU telemetry capture')\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "MEDIUM"
+          }
+        },
+        {
+          "ruleId": "glog-a59ccd34-1332-487f-88ac-ca72e548bd71",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/maskrcnn/inference/cpu/maskrcnn-benchmark/maskrcnn_benchmark/utils/comm.py"
+                },
+                "region": {
+                  "startLine": 107,
+                  "startColumn": 26,
+                  "endLine": 107,
+                  "endColumn": 46,
+                  "snippet": {
+                    "text": "        data_list.append(pickle.loads(buffer))\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 106,
+                  "endLine": 108,
+                  "snippet": {
+                    "text": "        buffer = tensor.cpu().numpy().tobytes()[:size]\n        data_list.append(pickle.loads(buffer))\n\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-19ccb5e8-1595-4f31-9a50-eed22e76f3b2",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/maskrcnn/training/cpu/maskrcnn-benchmark/maskrcnn_benchmark/utils/c2_model_loading.py"
+                },
+                "region": {
+                  "startLine": 156,
+                  "startColumn": 16,
+                  "endLine": 156,
+                  "endColumn": 49,
+                  "snippet": {
+                    "text": "        data = pickle.load(f, encoding=\"latin1\")\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 155,
+                  "endLine": 157,
+                  "snippet": {
+                    "text": "    with open(file_path, \"rb\") as f:\n        data = pickle.load(f, encoding=\"latin1\")\n    if \"blobs\" in data:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-cdcaa9bc-6f69-4f07-9c2d-46d4c02e15b3",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/maskrcnn/training/cpu/maskrcnn-benchmark/maskrcnn_benchmark/utils/comm.py"
+                },
+                "region": {
+                  "startLine": 107,
+                  "startColumn": 26,
+                  "endLine": 107,
+                  "endColumn": 46,
+                  "snippet": {
+                    "text": "        data_list.append(pickle.loads(buffer))\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 106,
+                  "endLine": 108,
+                  "snippet": {
+                    "text": "        buffer = tensor.cpu().numpy().tobytes()[:size]\n        data_list.append(pickle.loads(buffer))\n\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-91729665-146f-4377-8dff-745a1cc21227",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Use of weak MD5 hash for security. Consider usedforsecurity=False"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/rnnt/inference/gpu/utils/download_utils.py"
+                },
+                "region": {
+                  "startLine": 50,
+                  "startColumn": 17,
+                  "endLine": 50,
+                  "endColumn": 30,
+                  "snippet": {
+                    "text": "    file_hash = hashlib.md5()\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 49,
+                  "endLine": 51,
+                  "snippet": {
+                    "text": "def md5_checksum(fpath, target_hash):\n    file_hash = hashlib.md5()\n    with open(fpath, \"rb\") as fp:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-b299e269-d496-425c-ab25-307c69fb86d7",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Use of possibly insecure function - consider using safer ast.literal_eval."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/rnnt/inference/cpu/inference.py"
+                },
+                "region": {
+                  "startLine": 390,
+                  "startColumn": 5,
+                  "endLine": 391,
+                  "endColumn": 29,
+                  "snippet": {
+                    "text": "    eval(\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 389,
+                  "endLine": 398,
+                  "snippet": {
+                    "text": "\n    eval(\n        data_layer=data_layer,\n        audio_processor=eval_transforms,\n        encoderdecoder=model,\n        greedy_decoder=greedy_decoder,\n        labels=ctc_vocab,\n        args=args,\n        multi_gpu=multi_gpu)\n\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-ef71d324-aa12-4b28-9571-e5c62aafc178",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Use of possibly insecure function - consider using safer ast.literal_eval."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/rnnt/inference/gpu/inference.py"
+                },
+                "region": {
+                  "startLine": 482,
+                  "startColumn": 9,
+                  "endLine": 483,
+                  "endColumn": 33,
+                  "snippet": {
+                    "text": "        eval(\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 481,
+                  "endLine": 490,
+                  "snippet": {
+                    "text": "    else:\n        eval(\n            data_layer=data_layer,\n            audio_processor=eval_transforms,\n            encoderdecoder=model,\n            greedy_decoder=greedy_decoder,\n            labels=ctc_vocab,\n            args=args,\n            multi_gpu=multi_gpu)\n        \n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-0c22623e-c7ab-4800-891e-899adef21a81",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Use of weak MD5 hash for security. Consider usedforsecurity=False"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/rnnt/training/gpu/utils/download_utils.py"
+                },
+                "region": {
+                  "startLine": 50,
+                  "startColumn": 17,
+                  "endLine": 50,
+                  "endColumn": 30,
+                  "snippet": {
+                    "text": "    file_hash = hashlib.md5()\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 49,
+                  "endLine": 51,
+                  "snippet": {
+                    "text": "def md5_checksum(fpath, target_hash):\n    file_hash = hashlib.md5()\n    with open(fpath, \"rb\") as fp:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-db4f9337-4b5e-4660-8a43-8270ea6445da",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Using xml.etree.ElementTree.parse to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.parse with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/ssd-mobilenetv1/inference/gpu/vision/datasets/voc_dataset.py"
+                },
+                "region": {
+                  "startLine": 134,
+                  "startColumn": 19,
+                  "endLine": 134,
+                  "endColumn": 44,
+                  "snippet": {
+                    "text": "        objects = ET.parse(annotation_file).findall(\"object\")\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 133,
+                  "endLine": 135,
+                  "snippet": {
+                    "text": "        annotation_file = self.root / f\"Annotations/{image_id}.xml\"\n        objects = ET.parse(annotation_file).findall(\"object\")\n        boxes = []\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-8aa2bcb8-a4ce-43aa-8602-dfda2271e312",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/ssd-resnet34/training/cpu/utils.py"
+                },
+                "region": {
+                  "startLine": 582,
+                  "startColumn": 19,
+                  "endLine": 582,
+                  "endColumn": 35,
+                  "snippet": {
+                    "text": "            ret = pickle.load(fin)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 581,
+                  "endLine": 583,
+                  "snippet": {
+                    "text": "        with bz2.open(pklfile, \"rb\") as fin:\n            ret = pickle.load(fin)\n        return ret\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-84ad79c4-1c16-4fd9-964c-209b273c9240",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/ssd-resnet34/inference/cpu/utils.py"
+                },
+                "region": {
+                  "startLine": 620,
+                  "startColumn": 19,
+                  "endLine": 620,
+                  "endColumn": 35,
+                  "snippet": {
+                    "text": "            ret = pickle.load(fin)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 619,
+                  "endLine": 621,
+                  "snippet": {
+                    "text": "        with bz2.open(pklfile, \"rb\") as fin:\n            ret = pickle.load(fin)\n        return ret\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-d8747d82-5233-4db2-b982-26a6aaec79b0",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/torchrec_dlrm/inference/cpu/dlrm_main.py"
+                },
+                "region": {
+                  "startLine": 383,
+                  "startColumn": 5,
+                  "endLine": 383,
+                  "endColumn": 65,
+                  "snippet": {
+                    "text": "    os.system(f\"ln -s {tmp_dir}/model.so {target_dir}/model.so\")\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 382,
+                  "endLine": 384,
+                  "snippet": {
+                    "text": "    )\n    os.system(f\"ln -s {tmp_dir}/model.so {target_dir}/model.so\")\n    os.system(f\"cp {tmp_dir}/inputs.pt {target_dir}/inputs.pt\")\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-5a5850b4-62cc-4d47-ae6a-e9af4ab2dc6b",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Using xml.etree.ElementTree.parse to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.parse with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/ssd-resnet34/training/cpu/eval.py"
+                },
+                "region": {
+                  "startLine": 55,
+                  "startColumn": 12,
+                  "endLine": 55,
+                  "endColumn": 30,
+                  "snippet": {
+                    "text": "    tree = ET.parse(filename)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 54,
+                  "endLine": 56,
+                  "snippet": {
+                    "text": "    \"\"\" Parse a PASCAL VOC xml file \"\"\"\n    tree = ET.parse(filename)\n    objects = []\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-2814b272-d458-4ce7-8366-3ee9be895692",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/ssd-resnet34/training/cpu/eval.py"
+                },
+                "region": {
+                  "startLine": 124,
+                  "startColumn": 20,
+                  "endLine": 124,
+                  "endColumn": 34,
+                  "snippet": {
+                    "text": "            recs = pickle.load(f)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 123,
+                  "endLine": 125,
+                  "snippet": {
+                    "text": "        with open(cachefile, 'rb') as f:\n            recs = pickle.load(f)\n\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-ec7c4a1f-5791-4021-8851-44eeba9a1280",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/torchrec_dlrm/inference/cpu/dlrm_main.py"
+                },
+                "region": {
+                  "startLine": 400,
+                  "startColumn": 5,
+                  "endLine": 400,
+                  "endColumn": 145,
+                  "snippet": {
+                    "text": "    os.system(f\"export CMAKE_PREFIX_PATH={cmake_prefix_path} && export TORCH_LIBRARIES={torch_libraries} && cd {target_dir} && cmake . && make\")\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 399,
+                  "endLine": 401,
+                  "snippet": {
+                    "text": "    torch_libraries = os.path.join(pytorch_install_dir, \"lib\")\n    os.system(f\"export CMAKE_PREFIX_PATH={cmake_prefix_path} && export TORCH_LIBRARIES={torch_libraries} && cd {target_dir} && cmake . && make\")\n    return f\"{target_dir}/aoti_example\"\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-21ccda1d-a57b-462e-bb04-bbd70d6a6784",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/torchrec_dlrm/inference/cpu/dlrm_main.py"
+                },
+                "region": {
+                  "startLine": 384,
+                  "startColumn": 5,
+                  "endLine": 384,
+                  "endColumn": 64,
+                  "snippet": {
+                    "text": "    os.system(f\"cp {tmp_dir}/inputs.pt {target_dir}/inputs.pt\")\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 383,
+                  "endLine": 385,
+                  "snippet": {
+                    "text": "    os.system(f\"ln -s {tmp_dir}/model.so {target_dir}/model.so\")\n    os.system(f\"cp {tmp_dir}/inputs.pt {target_dir}/inputs.pt\")\n    model_dir = f\"{target_dir}/model.so\"\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-415a3b98-2009-430c-8a2d-4c88c3679b9e",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/torchrec_dlrm/inference/cpu/launch.py"
+                },
+                "region": {
+                  "startLine": 49,
+                  "startColumn": 5,
+                  "endLine": 49,
+                  "endColumn": 28,
+                  "snippet": {
+                    "text": "    os.system(composed_cmd)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 48,
+                  "endLine": 50,
+                  "snippet": {
+                    "text": "    print(composed_cmd)\n    os.system(composed_cmd)\nelse:\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-fd3f42d2-a828-4d41-a1d8-6b8591b49e30",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "models_v2/pytorch/torchrec_dlrm/inference/cpu/launch.py"
+                },
+                "region": {
+                  "startLine": 66,
+                  "startColumn": 5,
+                  "endLine": 66,
+                  "endColumn": 28,
+                  "snippet": {
+                    "text": "    os.system(composed_cmd)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 65,
+                  "endLine": 66,
+                  "snippet": {
+                    "text": "    print(composed_cmd)\n    os.system(composed_cmd)\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        }
+      ],
+      "newlineSequences": [
+        "\r\n",
+        "\n"
+      ]
+    }
+  ]
+}
